@@ -1,0 +1,101 @@
+---
+title: "Road to Recovery Working Group Assessment Wheel"
+output: html_document
+# runtime: shiny
+---
+```{r, echo=FALSE}
+
+
+library(ggplot2)
+
+
+#setup example data table
+f_wc <- "wheel_categories.csv"
+wheel_cats <- read.csv(
+  f_wc,
+  sep = ",",
+  header = TRUE
+)
+
+w_categories <- unique(wheel_cats$Category)
+w_features <- unique(wheel_cats$Feature)
+
+
+```
+
+```{r}
+# functions
+substrRight <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+```
+
+
+```{r}
+# load example data
+ex1 <- read.csv(
+  "wheel_data_ex1.csv",
+  sep = ",",
+  header = TRUE
+)
+ex1$level <- as.integer(substrRight(ex1$Index, 1))
+
+ex2 <- read.csv(
+  "wheel_data_ex2.csv",
+  sep = ",",
+  header = TRUE
+)
+ex2$level <- as.integer(substrRight(ex2$Index, 1))
+```
+
+
+```{r}
+
+dat <- structure(
+  list(
+    Category = structure(
+      1:6,
+      .Label = w_categories,
+      class = "factor"
+    ),
+    Percentage = c(0.4, 0.5, 0.3,
+                   0.7, 1, 0.8)
+  ),
+  .Names = c("Category", "Percentage"),
+  row.names = c(NA,
+                6L),
+  class = "data.frame"
+)
+
+ggplot(data = ex1) +
+  geom_col(aes(x = Category, fill = Category, y = Percentage),
+           width = 1) +
+  geom_hline(yintercept = seq(0, 1, by = .1),
+             color = "darkgrey",
+             size = .5) +
+  geom_vline(xintercept = seq(.5, 8.5, by = 1),
+             color = "darkgrey",
+             size = .5) +
+  coord_polar() +
+  theme_minimal() +
+  labs(x = NULL, y = NULL) +
+  theme(axis.text.y = element_blank(),
+        legend.position = "none",
+        panel.grid = element_blank())
+```
+
+```{r}
+# install.packages("ggplot2movies")
+library(ggplot2movies)
+if (require("ggplot2movies")) {
+movies$rrating <- cut_interval(movies$rating, length = 1)
+movies$budgetq <- cut_number(movies$budget, 4)
+
+doh <- ggplot(ex1, aes(x = level, fill = budgetq))
+
+# Wind rose
+doh + geom_bar(width = 1) + coord_polar()
+# Race track plot
+doh + geom_bar(width = 0.9, position = "fill") + coord_polar(theta = "y")
+}
+```
